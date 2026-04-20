@@ -1,0 +1,579 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: #0a0a0a;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    height: 100vh;
+    background: #1a1a1a;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header and Controls */
+
+header {
+    background: linear-gradient(135deg, #ff6b00 0%, #1a1a1a 100%);
+    color: white;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    padding-top: 40px;
+    border-bottom: 2px solid #ff8c00;
+}
+
+.titlebar-drag {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 32px;
+    -webkit-app-region: drag;
+    z-index: 1;
+}
+
+.window-controls {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    display: flex;
+    gap: 8px;
+    z-index: 2;
+}
+
+.control-btn {
+    -webkit-app-region: no-drag;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: rgba(255, 107, 0, 0.2);
+    color: #ff8c00;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1.2em;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.control-btn:hover {
+    background: rgba(255, 107, 0, 0.3);
+    color: #ffa500;
+}
+
+.control-btn:active {
+    background: rgba(255, 107, 0, 0.4);
+}
+
+header h1 {
+    font-size: 1.5em;
+    margin-bottom: 5px;
+}
+
+header p {
+    opacity: 0.9;
+    font-size: 0.95em;
+}
+
+/* MIDI Device Selector in Header */
+.midi-device-header {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    width: 240px;
+    z-index: 2;
+}
+
+.midi-device-label {
+    display: block;
+    font-size: 0.65em;
+    color: white;
+    font-weight: 600;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.midi-device-header select {
+    width: 100%;
+    padding: 6px 10px;
+    background: rgba(0, 0, 0, 0.3);
+    color: #e0e0e0;
+    border: 1px solid #ff6b00;
+    border-radius: 4px;
+    font-size: 0.8em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.midi-device-header select:hover {
+    background: rgba(0, 0, 0, 0.5);
+    border-color: #ffa500;
+}
+
+.midi-device-header select:focus {
+    outline: none;
+    background: rgba(0, 0, 0, 0.5);
+    border-color: #ffa500;
+    box-shadow: 0 0 0 2px rgba(255, 107, 0, 0.2);
+}
+
+.midi-device-header select option {
+    background: #1a1a1a;
+    color: #e0e0e0;
+}
+
+/* Project Management Buttons in Header */
+.project-header {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    display: flex;
+    gap: 8px;
+    z-index: 2;
+}
+
+.project-btn {
+    -webkit-app-region: no-drag;
+    padding: 6px 10px;
+    background: rgba(0, 0, 0, 0.3);
+    color: #e0e0e0;
+    border: 1px solid #ff6b00;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.75em;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.project-btn:hover {
+    background: rgba(0, 0, 0, 0.5);
+    border-color: #ffa500;
+    color: #ffa500;
+}
+
+.project-btn:active {
+    background: rgba(255, 107, 0, 0.2);
+}
+
+#languageButtons {
+    position: absolute;
+    top: 6px;
+    left: 10px;
+    display: flex;
+    gap: 8px;
+    z-index: 2;
+}
+
+.lang-btn {
+    -webkit-app-region: no-drag;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: rgba(255, 107, 0, 0.2);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1.2em;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lang-btn:hover {
+    background: rgba(255, 107, 0, 0.3);
+}
+
+.lang-btn.active {
+    background: rgba(255, 107, 0, 0.5);
+    border: 1px solid #ff8c00;
+}
+
+.flag-icon {
+    width: 24px;
+    height: 16px;
+    pointer-events: none;
+}
+
+/* Confirmation Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: #2a2a2a;
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+    text-align: center;
+    border: 1px solid #ff6b00;
+}
+
+.modal-content p {
+    font-size: 1.1em;
+    color: #e0e0e0;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.modal-btn {
+    padding: 10px 30px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 100px;
+}
+
+.modal-btn.confirm-yes {
+    background: linear-gradient(135deg, #ff6b00 0%, #ff8c00 100%);
+    color: white;
+}
+
+.modal-btn.confirm-yes:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(255, 107, 0, 0.5);
+}
+
+.modal-btn.confirm-no {
+    background: #3a3a3a;
+    color: #e0e0e0;
+    border: 1px solid #555;
+}
+
+.modal-btn.confirm-no:hover {
+    background: #4a4a4a;
+    border: 1px solid #666;
+}
+
+.modal-label {
+    display: block;
+    text-align: left;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #e0e0e0;
+}
+
+.modal-input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #444;
+    border-radius: 6px;
+    font-size: 1em;
+    box-sizing: border-box;
+    background: #1a1a1a;
+    color: #e0e0e0;
+}
+
+.content {
+    padding: 20px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.section {
+    margin-bottom: 25px;
+}
+
+.section h2 {
+    color: #ffa500;
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #ff6b00;
+    padding-bottom: 8px;
+}
+
+.form-group {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr) auto auto;
+    gap: 8px;
+    margin-bottom: 15px;
+    align-items: start;
+}
+
+.form-group > div {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: #e0e0e0;
+    font-size: 0.65em;
+    margin-bottom: 0;
+    text-transform: uppercase;
+    word-break: break-word;
+    line-height: 1;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.form-group input {
+    padding: 6px 8px;
+    border: 1px solid #444;
+    border-radius: 6px;
+    font-size: 0.85em;
+    background: #2a2a2a;
+    color: #e0e0e0;
+}
+
+.form-group select {
+    padding: 6px 8px;
+    border: 1px solid #444;
+    border-radius: 6px;
+    font-size: 0.85em;
+    background: #2a2a2a;
+    color: #e0e0e0;
+    cursor: pointer;
+}
+
+.form-group input:disabled,
+.form-group select:disabled {
+    background: #1a1a1a;
+    color: #666;
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: #333;
+}
+
+.modal-input:disabled {
+    background: #1a1a1a;
+    color: #666;
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: #333;
+}
+
+.form-group button {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #ff6b00 0%, #ff8c00 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 40px;
+    font-size: 0.9em;
+    align-self: end;
+}
+
+.form-group button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(255, 107, 0, 0.5);
+}
+
+.form-group button:active {
+    transform: translateY(0);
+}
+
+.form-group button.danger {
+    background: #dc3545;
+}
+
+.form-group button.danger:hover {
+    box-shadow: 0 10px 20px rgba(220, 53, 69, 0.4);
+}
+
+.buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+    min-height: 100px;
+}
+
+.button-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    border: 2px solid #333;
+    border-radius: 8px;
+    background: #242424;
+    transition: all 0.3s ease;
+}
+
+.button-item .midi-button {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #ff6b00 0%, #ff8c00 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 40px;
+}
+
+.button-item .midi-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(255, 107, 0, 0.5);
+}
+
+.button-item .midi-button:active {
+    transform: translateY(0);
+}
+
+.button-item:hover {
+    border-color: #ff6b00;
+    background: #2a2a2a;
+}
+
+.button-actions {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+}
+
+.edit-btn {
+    flex: 1;
+    padding: 6px 8px;
+    background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
+    color: #1a1a1a;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.75em;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.edit-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 165, 0, 0.5);
+}
+
+.delete-btn {
+    flex: 1;
+    padding: 6px 8px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.delete-btn:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+}
+
+.button-info {
+    font-size: 0.75em;
+    color: #888;
+    text-align: center;
+    width: 100%;
+}
+
+.empty-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #666;
+    padding: 40px 20px;
+    font-size: 1.1em;
+}
+
+/* Toast Notifications */
+#toastContainer {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.toast {
+    background: #2a2a2a;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 0.95em;
+    border-left: 4px solid #ff8c00;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.3s ease-out;
+    pointer-events: auto;
+    cursor: auto;
+}
+
+.toast.fade-out {
+    animation: slideOut 0.3s ease-out forwards;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .form-group {
+        grid-template-columns: 1fr;
+    }
+
+    .buttons-grid {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    }
+
+    header h1 {
+        font-size: 1.5em;
+    }
+
+    .content {
+        padding: 20px;
+    }
+}

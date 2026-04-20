@@ -1,0 +1,99 @@
+{
+  "name": "web-to-midi",
+  "version": "1.0.0",
+  "description": "MIDI desktop application with web-based button remote",
+  "license": "MIT",
+  "author": "Routmoute <routmoute@proton.me>",
+  "homepage": "https://github.com/routmoute/web-to-midi",
+  "type": "commonjs",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder -mwl",
+    "build-win": "electron-builder --win",
+    "build-mac": "electron-builder --mac",
+    "build-linux": "electron-builder --linux",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "electron": "^41.2.1",
+    "electron-builder": "^26.8.1"
+  },
+  "dependencies": {
+    "@julusian/midi": "^3.6.1",
+    "express": "^5.2.1"
+  },
+  "build": {
+    "appId": "com.web-to-midi.app",
+    "productName": "Web-to-MIDI",
+    "directories": {
+      "buildResources": "assets"
+    },
+    "files": [
+      "index.html",
+      "styles.css",
+      "main.js",
+      "preload.js",
+      "renderer.js",
+      "i18n.js",
+      "public/*",
+      "assets/*",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "icon": "assets/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-${os}-${arch}-Portable.${ext}"
+    },
+    "nsis": {
+      "artifactName": "${productName}-${version}-${os}-${arch}-Setup.${ext}",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "fileAssociations": [
+      {
+        "ext": "w2m",
+        "name": "Web-to-MIDI Project",
+        "description": "Web-to-MIDI Project File",
+        "icon": "assets/icon.ico"
+      }
+    ],
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Audio"
+    },
+    "appImage": {
+      "artifactName": "${productName}-${version}-${os}-${arch}.${ext}"
+    },
+    "deb": {
+      "artifactName": "${productName}-${version}-${os}-${arch}.${ext}"
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.music",
+      "icon": "assets/icon.icns"
+    },
+    "dmg": {
+      "artifactName": "${productName}-${version}-${os}-${arch}.${ext}"
+    }
+  }
+}

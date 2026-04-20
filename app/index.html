@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+    <title>Web to MIDI - Configurateur</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="i18n.js"></script>
+</head>
+<body>
+    <div id="toastContainer"></div>
+    <div class="container">
+        <header>
+            <div class="titlebar-drag"></div>
+            <div id="languageButtons">
+                <button class="lang-btn" data-lang="en" title="English"><img src="assets/flag-gb.svg" alt="English" class="flag-icon"></button>
+                <button class="lang-btn" data-lang="fr" title="Français"><img src="assets/flag-fr.svg" alt="Français" class="flag-icon"></button>
+            </div>
+            <div class="midi-device-header">
+                <label class="midi-device-label" data-i18n="midiDeviceLabel">MIDI Device</label>
+                <select id="midiDevice">
+                    <option value="" data-i18n="selectDevice">Select a device...</option>
+                </select>
+            </div>
+            <div class="project-header">
+                <button id="saveBtn" class="project-btn" data-i18n="saveProject">Save</button>
+                <button id="loadBtn" class="project-btn" data-i18n="loadProject">Load</button>
+                <button id="newBtn" class="project-btn" data-i18n="newProject">New</button>
+            </div>
+            <div class="window-controls">
+                <button id="minimizeBtn" class="control-btn">−</button>
+                <button id="closeBtn" class="control-btn">✕</button>
+            </div>
+            <div>
+                <h1 data-i18n="title">🎵 Web to MIDI</h1>
+                <p data-i18n="subtitle">Configure your custom MIDI buttons</p>
+            </div>
+        </header>
+        <div class="content">
+            <!-- Configuration Section -->
+            <div class="section">
+                <h2 data-i18n="createButton">Create a button</h2>
+                <div class="form-group">
+                    <div>
+                        <label for="buttonName" data-i18n="buttonNameLabel">Button name</label>
+                        <input type="text" id="buttonName" data-i18n-placeholder="buttonNamePlaceholder" placeholder="e.g. Do, Kick, Snare..." />
+                    </div>
+                    <div>
+                        <label for="buttonCommand" data-i18n="commandLabel">Command</label>
+                        <select id="buttonCommand">
+                            <option value="noteOn" data-i18n="noteOn">Note On</option>
+                            <option value="noteOff" data-i18n="noteOff">Note Off</option>
+                            <option value="keyPressure" data-i18n="keyPressure">Key Pressure</option>
+                            <option value="controlChange" data-i18n="controlChange">Control Change (CC)</option>
+                            <option value="programChange" data-i18n="programChange">Program Change</option>
+                            <option value="channelPressure" data-i18n="channelPressure">Channel Pressure</option>
+                            <option value="pitchBend" data-i18n="pitchBend">Pitch Bend</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="buttonChannel" data-i18n="midiChannelLabel">Channel</label>
+                        <input type="number" id="buttonChannel" min="1" max="16" value="1" />
+                    </div>
+                    <div>
+                        <label for="buttonData1" data-i18n="buttonData1Label">Data 1</label>
+                        <input type="number" id="buttonData1" data-i18n-placeholder="buttonData1Placeholder" placeholder="e.g. 60" min="0" max="127" value="0" />
+                    </div>
+                    <div>
+                        <label for="buttonData2" data-i18n="buttonData2Label">Data 2</label>
+                        <input type="number" id="buttonData2" data-i18n-placeholder="buttonData2Placeholder" placeholder="e.g. 64" min="0" max="127" value="127" />
+                    </div>
+                    <button id="addBtn" data-i18n="addButton">Add</button>
+                    <button id="clearBtn" class="danger" data-i18n="resetButton">Reset</button>
+                </div>
+            </div>
+
+            <!-- Buttons Grid Section -->
+            <div class="section">
+                <h2 data-i18n="yourButtons">Your buttons</h2>
+                <div class="buttons-grid" id="buttonsGrid">
+                    <p class="empty-message" data-i18n="emptyMessage">No buttons configured</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <p id="confirmMessage"></p>
+            <div class="modal-buttons">
+                <button id="confirmYes" class="modal-btn confirm-yes">Yes</button>
+                <button id="confirmNo" class="modal-btn confirm-no">No</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <label for="editNameInput" class="modal-label" data-i18n="editNameLabel">Button name</label>
+            <input type="text" id="editNameInput" placeholder="e.g. Do, Kick, Snare..." class="modal-input" />
+            <label for="editCommandInput" class="modal-label" data-i18n="editCommandLabel">Command</label>
+            <select id="editCommandInput" class="modal-input">
+                <option value="noteOn" data-i18n="noteOn">Note On</option>
+                <option value="noteOff" data-i18n="noteOff">Note Off</option>
+                <option value="keyPressure" data-i18n="keyPressure">Key Pressure</option>
+                <option value="controlChange" data-i18n="controlChange">Control Change (CC)</option>
+                <option value="programChange" data-i18n="programChange">Program Change</option>
+                <option value="channelPressure" data-i18n="channelPressure">Channel Pressure</option>
+                <option value="pitchBend" data-i18n="pitchBend">Pitch Bend</option>
+            </select>
+            <label for="editChannelInput" class="modal-label" data-i18n="midiChannelLabel">Channel</label>
+            <input type="number" id="editChannelInput" min="1" max="16" class="modal-input" />
+            <label for="editData1Input" class="modal-label" data-i18n="editData1Label">Data 1</label>
+            <input type="number" id="editData1Input" min="0" max="127" class="modal-input" />
+            <div id="editData2Wrapper">
+                <label for="editData2Input" class="modal-label" data-i18n="editData2Label">Data 2</label>
+                <input type="number" id="editData2Input" min="0" max="127" class="modal-input" />
+            </div>
+            <div class="modal-buttons">
+                <button id="editSave" class="modal-btn confirm-yes">Save</button>
+                <button id="editCancel" class="modal-btn confirm-no">Cancel</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,186 @@
+name: Build Releases
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-windows:
+    runs-on: ${{ matrix.runner }}
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      matrix:
+        include:
+          - runner: windows-latest
+            arch: x64
+            name: x64
+          - runner: windows-11-arm
+            arch: arm64
+            name: ARM64
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: latest
+
+      - name: Install dependencies
+        run: |
+          cd app
+          npm ci
+
+      - name: Build Windows distribution
+        run: |
+          cd app
+          npm run build-win-${{ matrix.arch }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: windows-artifacts-${{ matrix.arch }}
+          path: app/dist/*.exe
+
+  build-macos:
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - runner: macos-26-intel
+            arch: x64
+            name: Intel
+          - runner: macos-26
+            arch: arm64
+            name: Apple Silicon
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: latest
+
+      - name: Install dependencies
+        run: |
+          cd app
+          npm ci
+
+      - name: Build macOS distribution (${{ matrix.name }})
+        run: |
+          cd app
+          npm run build-mac
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: macos-artifacts-${{ matrix.arch }}
+          path: app/dist/*.dmg
+
+  build-linux:
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            arch: x64
+            name: x64
+          - runner: ubuntu-24.04-arm
+            arch: arm64
+            name: ARM64
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: latest
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev
+
+      - name: Install dependencies
+        run: |
+          cd app
+          npm ci
+
+      - name: Build Linux distribution
+        run: |
+          cd app
+          npm run build-linux
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: linux-artifacts-${{ matrix.arch }}
+          path: app/dist/*
+
+  create-release:
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: all-artifacts
+
+      - name: Extract version
+        id: version
+        run: |
+          TAG="${{ github.ref }}"
+          VERSION="${TAG#refs/tags/v}"
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "tag=${TAG#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Prepare release files
+        run: |
+          mkdir -p release
+          cp all-artifacts/windows-artifacts-x64/*.exe release/.
+          cp all-artifacts/windows-artifacts-arm64/*.exe release/.
+          cp all-artifacts/macos-artifacts-x64/*.dmg release/.
+          cp all-artifacts/macos-artifacts-arm64/*.dmg release/.
+          cp all-artifacts/linux-artifacts-x64/*.AppImage release/.
+          cp all-artifacts/linux-artifacts-x64/*.deb release/.
+          cp all-artifacts/linux-artifacts-arm64/*.AppImage release/.
+          cp all-artifacts/linux-artifacts-arm64/*.deb release/.
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v3
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ steps.version.outputs.tag }}
+          draft: false
+          prerelease: false
+          files: release/*
+          body: |
+            # Web-to-MIDI v${{ steps.version.outputs.version }}
+            
+            ## Linux
+            - `Web-to-MIDI-${{ steps.version.outputs.version }}-linux-amd64.deb` - Debian package x64
+            - `Web-to-MIDI-${{ steps.version.outputs.version }}-linux-arm64.AppImage` - AppImage ARM64
+            - `Web-to-MIDI-${{ steps.version.outputs.version }}-linux-arm64.deb` - Debian package ARM64
+            - `Web-to-MIDI-${{ steps.version.outputs.version }}-linux-x86_64.AppImage` - AppImage x64
+            
+            ## macOS
+            - `Web-to-MIDI-${{ steps.version.outputs.version }}-mac-arm64.dmg` - Apple Silicon (ARM64)
+            - `Web-to-MIDI-${{ steps.version.outputs.version }}-mac-x64.dmg` - Intel (x64)
+
+            ## Windows
+            - `Web-to-MIDI-${{ steps.version.outputs.version }}-win-x64-Portable.exe` - Portable x64 (no installation needed)
+            - `Web-to-MIDI-${{ steps.version.outputs.version }}-win-x64-Setup.exe` - Installer x64 (recommended)
+            - `Web-to-MIDI-${{ steps.version.outputs.version }}-win-arm64-Portable.exe` - Portable ARM64
+            - `Web-to-MIDI-${{ steps.version.outputs.version }}-win-arm64-Setup.exe` - Installer ARM64
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

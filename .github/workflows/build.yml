@@ -147,13 +147,15 @@ jobs:
         id: changelog
         run: |
           # Get previous tag
-          PREV_TAG=$(git tag -l | sort -V | tail -2 | head -1)
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
           if [ -z "$PREV_TAG" ]; then
             PREV_TAG=$(git rev-list --max-parents=0 HEAD)
           fi
-          
           # Generate changelog from commits
           CHANGELOG=$(git log $PREV_TAG..${{ github.ref_name }} --pretty=format:"- %s (%h)" --reverse)
+          if [ -z "$CHANGELOG" ]; then
+            CHANGELOG="No changes"
+          fi
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
           echo "$CHANGELOG" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT

@@ -702,3 +702,13 @@ header p {
     scrollbar-width: thin;
     scrollbar-color: #ff6b00 #181818;
 }
+
+/* Drag & drop visual feedback for button reordering */
+.button-item.dragging {
+  opacity: 0.5;
+  box-shadow: 0 0 10px 2px #ff6b00;
+}
+.button-item.drag-over {
+  outline: 2px dashed #ff6b00;
+  z-index: 2;
+}

@@ -741,6 +741,52 @@ async function toggleServer() {
   }
 }
 
+// --- Drag & Drop for Button Reordering ---
+let dragSrcIndex = null;
+
+function setupButtonDragAndDrop() {
+  const grid = document.getElementById('buttonsGrid');
+  if (!grid) return;
+
+  // Remove previous listeners if any
+  grid.querySelectorAll('.button-item').forEach((item, idx) => {
+    item.setAttribute('draggable', 'true');
+    item.ondragstart = (e) => {
+      dragSrcIndex = idx;
+      item.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    };
+    item.ondragend = () => {
+      item.classList.remove('dragging');
+    };
+    item.ondragover = (e) => {
+      e.preventDefault();
+      item.classList.add('drag-over');
+    };
+    item.ondragleave = () => {
+      item.classList.remove('drag-over');
+    };
+    item.ondrop = (e) => {
+      e.preventDefault();
+      item.classList.remove('drag-over');
+      if (dragSrcIndex === null || dragSrcIndex === idx) return;
+      // Move button in array
+      const moved = buttons.splice(dragSrcIndex, 1)[0];
+      buttons.splice(idx, 0, moved);
+      setProjectDirty(true);
+      renderButtons();
+    };
+  });
+}
+
+// Patch renderButtons to call setupButtonDragAndDrop after rendering
+const origRenderButtons = renderButtons;
+renderButtons = function() {
+  origRenderButtons.apply(this, arguments);
+  setupButtonDragAndDrop();
+};
+// --- END Drag & Drop ---
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
   const currentLang = getCurrentLanguage()

@@ -532,6 +532,11 @@ async function loadProject() {
     if (result.success) {
       buttons = result.buttons || []
       renderButtons()
+      // Fix: reapply MIDI device selection after loading a project
+      const midiDeviceSelect = document.getElementById('midiDevice');
+      if (midiDeviceSelect && midiDeviceSelect.value) {
+        selectMidiDevice(midiDeviceSelect.value);
+      }
       setProjectDirty(false)
       showToast(t('projectLoaded', getCurrentLanguage()) || 'Project loaded successfully !')
     } else if (result.error !== 'Open canceled') {

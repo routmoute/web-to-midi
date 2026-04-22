@@ -1,6 +1,6 @@
 {
   "name": "web-to-midi",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "MIDI desktop application with web-based button remote",
   "license": "MIT",
   "author": "Routmoute <routmoute@proton.me>",

@@ -42,7 +42,7 @@
       "node_modules/**/*"
     ],
     "win": {
-      "icon": "assets/icon.ico",
+      "icon": "public/icon.ico",
       "target": [
         "nsis",
         "portable"
@@ -63,7 +63,7 @@
         "ext": "w2m",
         "name": "Web-to-MIDI Project",
         "description": "Web-to-MIDI Project File",
-        "icon": "assets/icon.ico"
+        "icon": "public/icon.ico"
       }
     ],
     "linux": {

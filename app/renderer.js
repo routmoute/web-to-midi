@@ -121,6 +121,7 @@ function showEditModal(buttonId) {
   const channelInput = document.getElementById('editChannelInput')
   const data1Input = document.getElementById('editData1Input')
   const data2Input = document.getElementById('editData2Input')
+  const colorInput = document.getElementById('editColorInput')
   const saveBtn = document.getElementById('editSave')
   const cancelBtn = document.getElementById('editCancel')
   
@@ -131,6 +132,7 @@ function showEditModal(buttonId) {
   channelInput.value = button.channel + 1
   data1Input.value = button.data1
   data2Input.value = button.data2
+  colorInput.value = button.color || '#ff6b00'
   modal.style.display = 'flex'
   nameInput.focus()
   updateModalLabels()
@@ -144,6 +146,7 @@ function showEditModal(buttonId) {
     const newChannel = parseInt(channelInput.value)
     const newData1 = parseInt(data1Input.value)
     const newData2 = parseInt(data2Input.value)
+    const newColor = colorInput.value || '#ff6b00'
     
     // Validation with user feedback
     if (!newName) {
@@ -172,6 +175,7 @@ function showEditModal(buttonId) {
     button.channel = newChannel - 1  // Store 0-15 internally
     button.data1 = newData1
     button.data2 = newData2
+    button.color = newColor
     setProjectDirty(true)
     renderButtons()
     modal.style.display = 'none'
@@ -359,12 +363,14 @@ function addButton() {
   const channelInput = document.getElementById('buttonChannel')
   const data1Input = document.getElementById('buttonData1')
   const data2Input = document.getElementById('buttonData2')
+  const colorInput = document.getElementById('buttonColor')
   
   const name = nameInput.value.trim()
   const command = commandInput.value
   const channel = parseInt(channelInput.value)
   const data1 = parseInt(data1Input.value)
   const data2 = parseInt(data2Input.value)
+  const color = colorInput.value || '#ff6b00'
   
   // Validate inputs
   if (!name || !command || isNaN(data1) || !isValidData1(command, data1) || 
@@ -378,7 +384,8 @@ function addButton() {
     command,
     channel: channel - 1,  // Store 0-15 internally
     data1,
-    data2
+    data2,
+    color
   })
   
   setProjectDirty(true)
@@ -431,7 +438,25 @@ function renderButtons() {
     return
   }
   
-  grid.innerHTML = buttons.map(btn => `
+  // Inject dynamic styles for button colors (one style tag for all buttons)
+  let buttonStyles = ''
+  buttons.forEach(btn => {
+    const color = (btn.color && /^#[0-9a-fA-F]{6}$/.test(btn.color)) ? btn.color : '#ff6b00'
+    buttonStyles += `.midi-button[data-id="${btn.id}"] { background-color: ${color}; }\n`
+  })
+  
+  // Remove old style tag if it exists
+  const oldStyle = document.getElementById('buttonColorsStyle')
+  if (oldStyle) oldStyle.remove()
+  
+  // Create and inject new style tag
+  const styleTag = document.createElement('style')
+  styleTag.id = 'buttonColorsStyle'
+  styleTag.textContent = buttonStyles
+  document.head.appendChild(styleTag)
+  
+  grid.innerHTML = buttons.map(btn => {
+    return `
     <div class="button-item">
       <button class="midi-button" data-action="play" data-id="${btn.id}">${escapeHtml(btn.name)}</button>
       <div class="button-actions">
@@ -440,7 +465,7 @@ function renderButtons() {
       </div>
       <div class="button-info">${escapeHtml(formatButtonInfo(btn))}</div>
     </div>
-  `).join('')
+  `}).join('')
   
   syncButtonsWithServer()
 }

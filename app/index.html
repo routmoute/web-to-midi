@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'" />
     <title>Web to MIDI - Configurateur</title>
     <link rel="stylesheet" href="styles.css">
     <script src="i18n.js"></script>
@@ -70,6 +70,10 @@
                         <label for="buttonData2" data-i18n="buttonData2Label">Data 2</label>
                         <input type="number" id="buttonData2" data-i18n-placeholder="buttonData2Placeholder" placeholder="e.g. 64" min="0" max="127" value="127" />
                     </div>
+                    <div>
+                        <label for="buttonColor" data-i18n="buttonColorLabel">Color</label>
+                        <input type="color" id="buttonColor" value="#ff6b00" />
+                    </div>
                     <button id="addBtn" data-i18n="addButton">Add</button>
                     <button id="clearBtn" class="danger" data-i18n="resetButton">Reset</button>
                 </div>
@@ -121,6 +125,8 @@
                 <label for="editData2Input" class="modal-label" data-i18n="editData2Label">Data 2</label>
                 <input type="number" id="editData2Input" min="0" max="127" class="modal-input" />
             </div>
+            <label for="editColorInput" class="modal-label" data-i18n="buttonColorLabel">Color</label>
+            <input type="color" id="editColorInput" class="modal-input" />
             <div class="modal-buttons">
                 <button id="editSave" class="modal-btn confirm-yes">Save</button>
                 <button id="editCancel" class="modal-btn confirm-no">Cancel</button>

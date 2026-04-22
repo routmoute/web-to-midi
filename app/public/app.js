@@ -34,6 +34,23 @@ async function loadButtons() {
       return;
     }
     
+    // Inject dynamic styles for button colors (one style tag for all buttons)
+    let buttonStyles = '';
+    buttons.forEach(btn => {
+      const color = (btn.color && /^#[0-9a-fA-F]{6}$/.test(btn.color)) ? btn.color : '#ff6b00';
+      buttonStyles += `.midi-button[data-id="${btn.id}"] { background-color: ${color}; }\n`;
+    });
+    
+    // Remove old style tag if it exists
+    const oldStyle = document.getElementById('buttonColorsStyle');
+    if (oldStyle) oldStyle.remove();
+    
+    // Create and inject new style tag
+    const styleTag = document.createElement('style');
+    styleTag.id = 'buttonColorsStyle';
+    styleTag.textContent = buttonStyles;
+    document.head.appendChild(styleTag);
+    
     container.innerHTML = buttons.map(btn => `
       <button class="midi-button" data-id="${btn.id}">
         ${btn.name}

@@ -676,3 +676,29 @@ header p {
         padding: 20px;
     }
 }
+
+/* Custom scrollbar styling for dark/orange theme */
+.content::-webkit-scrollbar {
+    width: 12px;
+    background: #181818;
+}
+
+.content::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #ff6b00 0%, #a63c00 100%);
+    border-radius: 8px;
+    border: 2px solid #181818;
+}
+
+.content::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+}
+
+.content::-webkit-scrollbar-corner {
+    background: #181818;
+}
+
+/* Firefox */
+.content {
+    scrollbar-width: thin;
+    scrollbar-color: #ff6b00 #181818;
+}

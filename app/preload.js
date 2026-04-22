@@ -28,5 +28,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onSaveBeforeExit: (callback) => ipcRenderer.on('save-before-exit', callback),
   notifySaveComplete: () => ipcRenderer.send('save-complete'),
   onLoadFile: (callback) => ipcRenderer.on('load-file', (event, filePath) => callback(filePath)),
-  openFile: (filePath) => ipcRenderer.invoke('open-file', filePath)
+  openFile: (filePath) => ipcRenderer.invoke('open-file', filePath),
+  startServer: (port) => ipcRenderer.invoke('start-server', port),
+  stopServer: () => ipcRenderer.invoke('stop-server'),
+  getServerStatus: () => ipcRenderer.invoke('get-server-status')
 })

@@ -686,6 +686,61 @@ async function selectMidiDevice(deviceId) {
   }
 }
 
+// Update server status display
+async function updateServerStatus() {
+  try {
+    const status = await window.electronAPI.getServerStatus()
+    const statusDiv = document.getElementById('serverStatus')
+    const checkbox = document.getElementById('serverEnabled')
+    const portInput = document.getElementById('serverPort')
+    const currentLang = getCurrentLanguage()
+    
+    // Update checkbox state
+    checkbox.checked = status.running
+    
+    // Update port input - disable if server is running
+    portInput.value = status.port
+    portInput.disabled = status.running
+    
+    // Update status text
+    if (status.running) {
+      statusDiv.innerHTML = `<p class="server-info">${t('serverRunning', currentLang).replace('{port}', status.port)}</p>`
+    } else {
+      statusDiv.innerHTML = `<p class="server-info">${t('serverStopped', currentLang)}</p>`
+    }
+  } catch (err) {
+    console.error('Error updating server status:', err)
+  }
+}
+
+// Toggle server
+async function toggleServer() {
+  try {
+    const checkbox = document.getElementById('serverEnabled')
+    const portInput = document.getElementById('serverPort')
+    const port = parseInt(portInput.value)
+    const currentLang = getCurrentLanguage()
+    
+    if (checkbox.checked) {
+      const result = await window.electronAPI.startServer(port)
+      if (result.success) {
+        showToast(t('serverRunning', currentLang).replace('{port}', result.port))
+      } else {
+        checkbox.checked = false
+        alert(`${t('serverError', currentLang).replace('{error}', result.error)}`)
+      }
+    } else {
+      await window.electronAPI.stopServer()
+      showToast(t('serverStopped', currentLang))
+    }
+    
+    updateServerStatus()
+  } catch (err) {
+    console.error('Error toggling server:', err)
+    document.getElementById('serverEnabled').checked = false
+  }
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
   const currentLang = getCurrentLanguage()
@@ -732,6 +787,24 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Load MIDI devices
   loadMidiDevices()
+  
+  // Initialize server status and setup server controls
+  updateServerStatus()
+  
+  document.getElementById('serverEnabled').addEventListener('change', toggleServer)
+  
+  document.getElementById('serverPort').addEventListener('input', (e) => {
+    const port = parseInt(e.target.value)
+    // Allow empty or partial input while typing
+    if (e.target.value === '') return
+    
+    // Validate when a complete number is entered
+    if (port < 1 || port > 65535) {
+      e.target.value = 80
+      const currentLang = getCurrentLanguage()
+      alert(t('invalidPort', currentLang) || 'Port must be between 1 and 65535')
+    }
+  })
   
   renderButtons()
   

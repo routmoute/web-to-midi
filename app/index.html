@@ -86,6 +86,24 @@
                     <p class="empty-message" data-i18n="emptyMessage">No buttons configured</p>
                 </div>
             </div>
+
+            <!-- Server Settings Section -->
+            <div class="section">
+                <h2 data-i18n="serverSettings">Server Settings</h2>
+                <div class="server-settings">
+                    <div class="server-control">
+                        <label>
+                            <input type="checkbox" id="serverEnabled" />
+                            <span data-i18n="enableWebServer">Enable Web Server</span>
+                        </label>
+                    </div>
+                    <div class="server-port">
+                        <label for="serverPort" data-i18n="serverPortLabel">Server Port</label>
+                        <input type="number" id="serverPort" min="1" max="65535" value="80" />
+                    </div>
+                    <div id="serverStatus" class="server-status"></div>
+                </div>
+            </div>
         </div>
     </div>
 

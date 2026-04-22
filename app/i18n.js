@@ -62,7 +62,14 @@ const translations = {
     dontSave: 'Don\'t Save',
     cancelExit: 'Cancel',
     noMidiDevices: 'No MIDI devices found',
-    midiDeviceSelected: 'MIDI Device:'
+    midiDeviceSelected: 'MIDI Device:',
+    serverSettings: 'Server Settings',
+    enableWebServer: 'Enable Web Server',
+    serverPortLabel: 'Port',
+    serverRunning: 'Server running on port {port}',
+    serverStopped: 'Server stopped',
+    serverError: 'Server error: {error}',
+    invalidPort: 'Port must be between 1 and 65535'
   },
   fr: {
     title: '🎵 Web to MIDI',
@@ -127,7 +134,14 @@ const translations = {
     dontSave: 'Ne pas enregistrer',
     cancelExit: 'Annuler',
     noMidiDevices: 'Aucun appareil MIDI trouvé',
-    midiDeviceSelected: 'Appareil MIDI :'
+    midiDeviceSelected: 'Appareil MIDI :',
+    serverSettings: 'Paramètres du serveur',
+    enableWebServer: 'Activer le serveur web',
+    serverPortLabel: 'Port',
+    serverRunning: 'Serveur en marche sur le port {port}',
+    serverStopped: 'Serveur arrêté',
+    serverError: 'Erreur serveur : {error}',
+    invalidPort: 'Le port doit être entre 1 et 65535'
   }
 }
 

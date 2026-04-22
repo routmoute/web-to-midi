@@ -41,6 +41,13 @@ const appState = {
   selectedDevice: null
 }
 
+// Shared state for web server
+const serverState = {
+  enabled: false,
+  port: 80,
+  server: null
+}
+
 // Get list of available MIDI devices
 function getMidiDevices() {
   const output = getOrCreateMidiOutput()
@@ -274,9 +281,8 @@ app.on('before-quit', () => {
 })
 
 // Setup Express server
-const setupExpressServer = () => {
+const setupExpressServer = (port) => {
   const expressApp = express()
-  const PORT = 80
 
   // Middleware
   expressApp.use(express.json())
@@ -306,26 +312,67 @@ const setupExpressServer = () => {
   })
 
   // Start server
-  const server = expressApp.listen(PORT, () => {
-    console.log(`Express server running on port ${PORT}`)
-  })
+  return new Promise((resolve, reject) => {
+    const server = expressApp.listen(port, () => {
+      console.log(`Express server running on port ${port}`)
+      resolve(server)
+    })
 
-  server.on('error', (err) => {
-    if (err.code === 'EACCES' || err.code === 'EADDRINUSE') {
-      console.error(`Port ${PORT} unavailable, trying port 3000...`)
-      const fallbackPort = 3000
-      const fallbackServer = expressApp.listen(fallbackPort, () => {
-        console.log(`Express server running on port ${fallbackPort} (fallback from ${PORT})`)
-      })
-      fallbackServer.on('error', (err) => {
-        console.error(`Failed to start Express server on both ports:`, err.message)
-        process.exit(1)
-      })
-    } else {
-      console.error(`Express server error:`, err.message)
-      process.exit(1)
-    }
+    server.on('error', (err) => {
+      if (err.code === 'EACCES' || err.code === 'EADDRINUSE') {
+        console.error(`Port ${port} unavailable: ${err.message}`)
+        reject(new Error(`Port ${port} is already in use`))
+      } else {
+        console.error(`Express server error:`, err.message)
+        reject(err)
+      }
+    })
   })
+}
+
+// Start web server
+const startWebServer = async (port) => {
+  try {
+    if (serverState.server) {
+      console.warn('Server already running')
+      return { success: false, error: 'Server already running' }
+    }
+
+    serverState.server = await setupExpressServer(port)
+    serverState.port = port
+    serverState.enabled = true
+    return { success: true, port }
+  } catch (err) {
+    console.error('Failed to start server:', err.message)
+    return { success: false, error: err.message }
+  }
+}
+
+// Stop web server
+const stopWebServer = () => {
+  try {
+    if (serverState.server) {
+      serverState.server.close(() => {
+        console.log('Express server stopped')
+      })
+      serverState.server = null
+      serverState.enabled = false
+      return { success: true }
+    }
+    return { success: false, error: 'Server not running' }
+  } catch (err) {
+    console.error('Failed to stop server:', err.message)
+    return { success: false, error: err.message }
+  }
+}
+
+// Get server status
+const getServerStatus = () => {
+  return {
+    enabled: serverState.enabled,
+    port: serverState.port,
+    running: serverState.server !== null
+  }
 }
 
 app.whenReady().then(() => {
@@ -454,8 +501,22 @@ app.whenReady().then(() => {
     return { success: true }
   })
 
+  // Server control handlers
+  ipcMain.handle('start-server', async (event, port) => {
+    return await startWebServer(port)
+  })
+
+  ipcMain.handle('stop-server', (event) => {
+    return stopWebServer()
+  })
+
+  ipcMain.handle('get-server-status', (event) => {
+    return getServerStatus()
+  })
+
   createWindow()
-  setupExpressServer()
+  // Start web server by default on port 80
+  startWebServer(80).catch(err => console.error('Failed to start server:', err))
 
   // Handle .w2m files opened with the app (Windows)
   if (process.argv.length > 1) {

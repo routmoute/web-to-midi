@@ -85,7 +85,7 @@
         "zip"
       ],
       "category": "public.app-category.music",
-      "icon": "assets/icon.icns"
+      "icon": "public/icon.icns"
     },
     "dmg": {
       "artifactName": "${productName}-${version}-${os}-${arch}.${ext}"
